@@ -1,0 +1,23 @@
+#pragma once
+
+#include <Platform.hpp>
+
+#if defined(TULIP_HOOK_MACOS) && defined(TULIP_HOOK_ARMV8)
+
+#include "DarwinTarget.hpp"
+
+namespace tulip::hook {
+	class MacosM1Target : public DarwinTarget {
+	public:
+		using DarwinTarget::DarwinTarget;
+
+		noahh::Result<csh> openCapstone() override;
+
+		std::unique_ptr<BaseGenerator> getGenerator() override;
+
+		std::shared_ptr<CallingConvention> createConvention(TulipConvention convention) noexcept override;
+	};
+}
+
+#endif
+

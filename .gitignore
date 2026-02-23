@@ -1,0 +1,35 @@
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# Macos be like
+**/.DS_Store
+
+# Cache files for Sublime Text
+**/*.tmlanguage.cache
+**/*.tmPreferences.cache
+**/*.stTheme.cache
+
+# Workspace files are user-specific
+**/*.sublime-workspace
+**/*.sublime-project
+.vscode
+.idea
+
+# Ignore build folders
+**/build
+build
+
+balls.asm
+balls2.asm
+
+# clangd
+.cache/

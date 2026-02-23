@@ -1,0 +1,144 @@
+name: Build TulipHook
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - '**'              # every branch
+    - '!no-build-**'    # unless marked as no-build
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - name: 'Windows (32-bit)'
+          id: win-32
+          arch: x86
+          os: windows-latest
+          build_tests: true
+          extra_flags: '-DCMAKE_BUILD_TYPE=Debug'
+          out_paths: './build/src/TulipHook.lib'
+
+        - name: 'Windows (64-bit)'
+          id: win-64
+          arch: x64
+          os: windows-latest
+          build_tests: true
+          extra_flags: '-DCMAKE_BUILD_TYPE=Debug'
+          out_paths: './build/src/TulipHook.lib'
+
+        - name: 'macOS (x64)'
+          id: macos-x64
+          os: macos-15-intel
+          build_tests: true
+          extra_flags: "-DCMAKE_BUILD_TYPE=Debug"
+          out_paths: './build/src/libTulipHook.a'
+
+        - name: 'macOS (m1)'
+          id: macos-arm64
+          os: macos-latest
+          build_tests: true
+          extra_flags: "-DCMAKE_BUILD_TYPE=Debug"
+          out_paths: './build/src/libTulipHook.a'
+
+        - name: 'Android Armv7'
+          id: android-armv7
+          os: ubuntu-latest
+          build_tests: false
+          extra_flags: "-DTULIP_DONT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-25 -DANDROID_ARM_NEON=ON"
+          out_paths: './build/src/libTulipHook.a'
+        
+        - name: 'Android Arm64'
+          id: android-arm64
+          os: ubuntu-latest
+          build_tests: false
+          extra_flags: "-DTULIP_DONT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-25 -DANDROID_ARM_NEON=ON"
+          out_paths: './build/src/libTulipHook.a'
+
+        - name: 'Linux Armv7'
+          id: linux-armv7
+          os: ubuntu-latest
+          build_tests: true
+          extra_flags: "-DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/.github/armv7-cross-toolchain.cmake"
+          out_paths: './build/src/libTulipHook.a'
+
+        - name: 'iOS'
+          id: ios-arm
+          os: macos-latest
+          build_tests: false
+          extra_flags: "-DTULIP_BUILD_DYNAMIC=ON -DTULIP_DONT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SYSTEM_NAME=iOS"
+          out_paths: './build/src/libTulipHook.dylib'
+
+        - name: 'Linux (x64)'
+          id: linux-x64
+          os: ubuntu-latest
+          build_tests: true
+          extra_flags: "-DCMAKE_BUILD_TYPE=Debug"
+          out_paths: './build/src/libTulipHook.a'
+
+    name: Build and Test ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm-cache
+      CMAKE_C_COMPILER_LAUNCHER: sccache
+      CMAKE_CXX_COMPILER_LAUNCHER: sccache
+      GTEST_COLOR: yes
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1.12.1
+      with:
+        arch: ${{ matrix.config.arch }}
+      if: matrix.config.id == 'win-32' || matrix.config.id == 'win-64'
+
+    # https://github.com/hendrikmuhs/ccache-action/pull/182
+    - name: Setup sccache
+      uses: chirag-droid/ccache-action@main
+      with:
+        variant: sccache
+        key: ${{ matrix.config.id }}-v1
+
+    - name: Install ninja-build tool
+      uses: seanmiddleditch/gha-setup-ninja@v3
+      if: matrix.config.id != 'win-32' && matrix.config.id != 'win-64'
+
+    - name: Setup cross compile toolchain
+      shell: bash
+      run: |
+        # disable man to avoid update times
+        echo "set man-db/auto-update false" | sudo debconf-communicate
+        sudo dpkg-reconfigure man-db
+
+        sudo apt-get update
+        sudo apt-get -y install gcc-arm-linux-gnueabi g++-arm-linux-gnueabi binutils-arm-linux-gnueabi libc6-dev-armel-cross qemu-user-static lld
+        echo "QEMU_LD_PREFIX=/usr/arm-linux-gnueabi/" >> $GITHUB_ENV
+      if: matrix.config.id == 'linux-armv7'
+
+    - name: Configure
+      shell: bash
+      run: cmake -G Ninja -B ./build ${{ matrix.config.extra_flags }}
+
+    - name: Build
+      shell: bash
+      run: |
+        cmake --build ./build --parallel
+        mkdir ./out
+        cp ${{ matrix.config.out_paths }} ./out
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: output-${{ matrix.config.id }}
+        path: ${{ github.workspace }}/out
+
+    - name: Test
+      run: ctest --test-dir ./build/test --output-on-failure
+      if: matrix.config.build_tests == true
