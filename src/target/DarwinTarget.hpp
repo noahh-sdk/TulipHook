@@ -11,10 +11,10 @@ namespace tulip::hook {
 	public:
 		using Target::Target;
 
-		geode::Result<> allocatePage() override;
-		geode::Result<uint32_t> getProtection(void* address) override;
-		geode::Result<> protectMemory(void* address, size_t size, uint32_t protection) override;
-		geode::Result<> rawWriteMemory(void* destination, void const* source, size_t size) override;
+		noahh::Result<> allocatePage() override;
+		noahh::Result<uint32_t> getProtection(void* address) override;
+		noahh::Result<> protectMemory(void* address, size_t size, uint32_t protection) override;
+		noahh::Result<> rawWriteMemory(void* destination, void const* source, size_t size) override;
 		uint32_t getWritableProtection() override;
 
 	protected:
@@ -24,3 +24,4 @@ namespace tulip::hook {
 }
 
 #endif
+

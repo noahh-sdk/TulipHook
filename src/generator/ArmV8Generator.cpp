@@ -152,7 +152,7 @@ std::vector<uint8_t> ArmV8Generator::intervenerBytes(int64_t original, int64_t h
 
     return std::move(a.m_buffer);
 }
-geode::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
+noahh::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
 	auto address = original;
 	auto trampoline = relocated;
 
@@ -418,7 +418,7 @@ geode::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int6
 
 	a.updateLabels();
 
-	return geode::Ok(RelocateReturn{std::move(a.m_buffer), targetSize});
+	return noahh::Ok(RelocateReturn{std::move(a.m_buffer), targetSize});
 }
 
 std::vector<uint8_t> ArmV8Generator::commonHandlerBytes(int64_t handler, ptrdiff_t spaceOffset) {
@@ -537,3 +537,4 @@ std::vector<uint8_t> ArmV8Generator::commonIntervenerBytes(int64_t original, int
 
 	return std::move(a.m_buffer);
 }
+

@@ -11,7 +11,7 @@ Pool& Pool::get() {
 	return ret;
 }
 
-geode::Result<HandlerHandle> Pool::createHandler(void* address, HandlerMetadata const& metadata) {
+noahh::Result<HandlerHandle> Pool::createHandler(void* address, HandlerMetadata const& metadata) {
 	auto handle = reinterpret_cast<HandlerHandle>(address);
 
 	if (m_handlers.find(handle) == m_handlers.end()) {
@@ -19,26 +19,26 @@ geode::Result<HandlerHandle> Pool::createHandler(void* address, HandlerMetadata 
 		m_handlers.emplace(handle, std::move(handler));
 
 		if (!m_runtimeInterveningDisabled) {
-			GEODE_UNWRAP(m_handlers[handle]->init());
+			NOAHH_UNWRAP(m_handlers[handle]->init());
 		}
 	}
 
 	if (!m_runtimeInterveningDisabled) {
-		GEODE_UNWRAP(m_handlers[handle]->interveneFunction());
+		NOAHH_UNWRAP(m_handlers[handle]->interveneFunction());
 	}
 
-	return geode::Ok(std::move(handle));
+	return noahh::Ok(std::move(handle));
 }
 
-geode::Result<> Pool::removeHandler(HandlerHandle const& handle) {
+noahh::Result<> Pool::removeHandler(HandlerHandle const& handle) {
 	if (m_handlers.find(handle) == m_handlers.end()) {
-		return geode::Err("Handler not found");
+		return noahh::Err("Handler not found");
 	}
 	m_handlers[handle]->clearHooks();
 	if (!m_runtimeInterveningDisabled) {
-		GEODE_UNWRAP(m_handlers[handle]->restoreFunction());
+		NOAHH_UNWRAP(m_handlers[handle]->restoreFunction());
 	}
-	return geode::Ok();
+	return noahh::Ok();
 }
 
 Handler& Pool::getHandler(HandlerHandle const& handle) {
@@ -82,19 +82,19 @@ void* Pool::getCommonHandlerStatic(void* originalFunction, size_t uniqueIndex, p
 	return Pool::get().getCommonHandler(originalFunction, uniqueIndex, trampolineOffset, commonHandler, handlerType	);
 }
 
-geode::Result<> Pool::disableRuntimeIntervening(void* commonHandlerSpace) {
+noahh::Result<> Pool::disableRuntimeIntervening(void* commonHandlerSpace) {
 	if (m_runtimeInterveningDisabled) {
-		return geode::Ok();
+		return noahh::Ok();
 	}
 
 	if (!commonHandlerSpace) {
-		return geode::Err("Common handler space is null");
+		return noahh::Err("Common handler space is null");
 	}
 
 	auto handler = reinterpret_cast<void*>(&Pool::getCommonHandlerStatic);
-	GEODE_UNWRAP(Target::get().writeMemory(commonHandlerSpace, &handler, sizeof(handler)));
+	NOAHH_UNWRAP(Target::get().writeMemory(commonHandlerSpace, &handler, sizeof(handler)));
 
 	m_runtimeInterveningDisabled = true;
 	
-	return geode::Ok();
+	return noahh::Ok();
 }

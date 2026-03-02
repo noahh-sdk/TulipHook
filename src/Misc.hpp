@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Geode/Result.hpp>
+#include <Noahh/Result.hpp>
 
 namespace tulip::hook {
 
 	class Misc {
 	public:
-		static geode::Result<void*> followJumps(void* address);
+		static noahh::Result<void*> followJumps(void* address);
 	};
 }

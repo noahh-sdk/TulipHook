@@ -31,9 +31,9 @@ std::unique_ptr<Handler> Handler::create(void* address, HandlerMetadata const& m
 
 Handler::~Handler() {}
 
-geode::Result<> Handler::init() {
+noahh::Result<> Handler::init() {
 	if (Pool::get().m_runtimeInterveningDisabled) {
-		return geode::Err("Runtime intervening is disabled");
+		return noahh::Err("Runtime intervening is disabled");
 	}
 
 	std::stringstream ss;
@@ -44,7 +44,7 @@ geode::Result<> Handler::init() {
 	auto dryHandler = generator->handlerBytes((int64_t)m_address, 0, m_content.get(), m_metadata);
 	BaseGenerator::HandlerReturn handler;
 	do {
-		GEODE_UNWRAP_INTO(m_handler, Target::get().allocateArea(dryHandler.bytes.size()));
+		NOAHH_UNWRAP_INTO(m_handler, Target::get().allocateArea(dryHandler.bytes.size()));
 		handler = generator->handlerBytes((int64_t)m_address, (int64_t)m_handler, m_content.get(), m_metadata);
 
 		if (handler.bytes.size() <= dryHandler.bytes.size()) break;
@@ -62,7 +62,7 @@ geode::Result<> Handler::init() {
 		return ss.str();
 	});
 
-	GEODE_UNWRAP(Target::get().writeMemory(m_handler, handler.bytes.data(), handler.bytes.size()));
+	NOAHH_UNWRAP(Target::get().writeMemory(m_handler, handler.bytes.data(), handler.bytes.size()));
 	if (handler.runtimeInfo) {
 		Target::get().registerFunction(m_handler, handler.bytes.size(), handler.runtimeInfo);
 	}
@@ -72,11 +72,11 @@ geode::Result<> Handler::init() {
 	std::vector<uint8_t> dryOriginalBytes(0x20);
 	std::memcpy(dryOriginalBytes.data(), (void*)realAddress, dryOriginalBytes.size());
 
-	GEODE_UNWRAP_INTO(auto dryRelocated, generator->relocatedBytes((int64_t)m_address, 0, dryOriginalBytes, dryIntervener.size()));
+	NOAHH_UNWRAP_INTO(auto dryRelocated, generator->relocatedBytes((int64_t)m_address, 0, dryOriginalBytes, dryIntervener.size()));
 	BaseGenerator::RelocateReturn relocated;
 	do {
-		GEODE_UNWRAP_INTO(m_relocated, Target::get().allocateArea(dryRelocated.bytes.size()));
-		GEODE_UNWRAP_INTO(relocated, generator->relocatedBytes((int64_t)m_address, (int64_t)m_relocated, dryOriginalBytes, dryIntervener.size()));
+		NOAHH_UNWRAP_INTO(m_relocated, Target::get().allocateArea(dryRelocated.bytes.size()));
+		NOAHH_UNWRAP_INTO(relocated, generator->relocatedBytes((int64_t)m_address, (int64_t)m_relocated, dryOriginalBytes, dryIntervener.size()));
 
 		if (relocated.bytes.size() <= dryRelocated.bytes.size()) break;
 
@@ -93,13 +93,13 @@ geode::Result<> Handler::init() {
 		return ss.str();
 	});
 
-	GEODE_UNWRAP(Target::get().writeMemory(m_relocated, relocated.bytes.data(), relocated.bytes.size()));
+	NOAHH_UNWRAP(Target::get().writeMemory(m_relocated, relocated.bytes.data(), relocated.bytes.size()));
 
 	if (m_metadata.m_convention->needsWrapper(m_metadata.m_abstract)) {
 		auto dryWrapped = generator->wrapperBytes((int64_t)m_relocated, 0, m_wrapperMetadata);
 		BaseGenerator::WrapperReturn wrapped;
 		do {
-			GEODE_UNWRAP_INTO(m_trampoline, Target::get().allocateArea(dryHandler.bytes.size()));
+			NOAHH_UNWRAP_INTO(m_trampoline, Target::get().allocateArea(dryHandler.bytes.size()));
 			wrapped = generator->wrapperBytes((int64_t)m_relocated, (int64_t)m_trampoline, m_wrapperMetadata);
 
 			if (wrapped.bytes.size() <= dryWrapped.bytes.size()) break;
@@ -117,7 +117,7 @@ geode::Result<> Handler::init() {
 			return ss.str();
 		});
 
-		GEODE_UNWRAP(Target::get().writeMemory(m_trampoline, wrapped.bytes.data(), wrapped.bytes.size()));
+		NOAHH_UNWRAP(Target::get().writeMemory(m_trampoline, wrapped.bytes.data(), wrapped.bytes.size()));
 		if (wrapped.runtimeInfo) {
 			Target::get().registerFunction(m_trampoline, wrapped.bytes.size(), wrapped.runtimeInfo);
 		}
@@ -153,7 +153,7 @@ geode::Result<> Handler::init() {
 
 	this->addOriginal();
 
-	return geode::Ok();
+	return noahh::Ok();
 }
 
 void Handler::addOriginal() {
@@ -238,9 +238,9 @@ void Handler::reorderFunctions() {
 	});
 }
 
-geode::Result<> Handler::interveneFunction() {
+noahh::Result<> Handler::interveneFunction() {
 	if (Pool::get().m_runtimeInterveningDisabled) {
-		return geode::Err("Runtime intervening is disabled");
+		return noahh::Err("Runtime intervening is disabled");
 	}
 	return Target::get().writeMemory(
 		(void*)Target::get().getRealPtr(m_address),
@@ -249,9 +249,9 @@ geode::Result<> Handler::interveneFunction() {
 	);
 }
 
-geode::Result<> Handler::restoreFunction() {
+noahh::Result<> Handler::restoreFunction() {
 	if (Pool::get().m_runtimeInterveningDisabled) {
-		return geode::Err("Runtime intervening is disabled");
+		return noahh::Err("Runtime intervening is disabled");
 	}
 	return Target::get().writeMemory(
 		(void*)Target::get().getRealPtr(m_address),
@@ -300,3 +300,4 @@ void* Handler::popData() {
 void Handler::pushData(void* data) {
 	s_dataStack.push(data);
 }
+

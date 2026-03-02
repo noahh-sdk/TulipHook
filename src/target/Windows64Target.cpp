@@ -19,11 +19,11 @@ Target& Target::get() {
 	return ret;
 }
 
-geode::Result<> Windows64Target::allocatePage() {
+noahh::Result<> Windows64Target::allocatePage() {
 	m_allocatedPage = VirtualAlloc(nullptr, 0x10000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READ);
 
 	if (!m_allocatedPage) {
-		return geode::Err("Unable to allocate memory: " + std::to_string(GetLastError()));
+		return noahh::Err("Unable to allocate memory: " + std::to_string(GetLastError()));
 	}
 
 	m_currentOffset = 0;
@@ -52,18 +52,18 @@ geode::Result<> Windows64Target::allocatePage() {
 		nullptr
 	);
 
-	return geode::Ok();
+	return noahh::Ok();
 }
 
-geode::Result<csh> Windows64Target::openCapstone() {
+noahh::Result<csh> Windows64Target::openCapstone() {
 	cs_err status;
 
 	status = cs_open(CS_ARCH_X86, CS_MODE_64, &m_capstone);
 	if (status != CS_ERR_OK) {
-		return geode::Err("Couldn't open capstone");
+		return noahh::Err("Couldn't open capstone");
 	}
 
-	return geode::Ok(m_capstone);
+	return noahh::Ok(m_capstone);
 }
 
 std::unique_ptr<BaseGenerator> Windows64Target::getGenerator() {

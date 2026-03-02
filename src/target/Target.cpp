@@ -2,9 +2,9 @@
 
 using namespace tulip::hook;
 
-geode::Result<void*> Target::allocateArea(size_t size) {
+noahh::Result<void*> Target::allocateArea(size_t size) {
 	if (m_remainingOffset < size) {
-		GEODE_UNWRAP(this->allocatePage());
+		NOAHH_UNWRAP(this->allocatePage());
 	}
 
 	auto ret = reinterpret_cast<uintptr_t>(m_allocatedPage) + m_currentOffset;
@@ -12,31 +12,31 @@ geode::Result<void*> Target::allocateArea(size_t size) {
 	m_remainingOffset -= size;
 	m_currentOffset += size;
 
-	return geode::Ok(reinterpret_cast<void*>(ret));
+	return noahh::Ok(reinterpret_cast<void*>(ret));
 }
 
-geode::Result<void*> Target::peekArea() {
+noahh::Result<void*> Target::peekArea() {
 	if (m_remainingOffset == 0) {
-		GEODE_UNWRAP(this->allocatePage());
+		NOAHH_UNWRAP(this->allocatePage());
 	}
 
 	auto ret = reinterpret_cast<uintptr_t>(m_allocatedPage) + m_currentOffset;
 
-	return geode::Ok(reinterpret_cast<void*>(ret));	
+	return noahh::Ok(reinterpret_cast<void*>(ret));	
 }
 
-geode::Result<> Target::writeMemory(void* destination, void const* source, size_t size) {
-	GEODE_UNWRAP_INTO(auto oldProtection, this->getProtection(destination));
+noahh::Result<> Target::writeMemory(void* destination, void const* source, size_t size) {
+	NOAHH_UNWRAP_INTO(auto oldProtection, this->getProtection(destination));
 	
-	GEODE_UNWRAP(this->protectMemory(destination, size, this->getWritableProtection()));
+	NOAHH_UNWRAP(this->protectMemory(destination, size, this->getWritableProtection()));
 
-	GEODE_UNWRAP(this->rawWriteMemory(destination, source, size));
+	NOAHH_UNWRAP(this->rawWriteMemory(destination, source, size));
 
 	if (oldProtection != this->getWritableProtection()) {
 		// restore old protection
-		GEODE_UNWRAP(this->protectMemory(destination, size, oldProtection));
+		NOAHH_UNWRAP(this->protectMemory(destination, size, oldProtection));
 	}
-	return geode::Ok();
+	return noahh::Ok();
 }
 
 void Target::closeCapstone() {

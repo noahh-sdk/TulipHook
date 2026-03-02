@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HandlerData.hpp>
-#include <Geode/Result.hpp>
+#include <Noahh/Result.hpp>
 #include <WrapperData.hpp>
 #include <FunctionData.hpp>
 #include <memory>
@@ -39,19 +39,19 @@ namespace tulip::hook {
 
 		virtual ~Target() = default;
 
-		geode::Result<void*> allocateArea(size_t size);
-		geode::Result<void*> peekArea();
+		noahh::Result<void*> allocateArea(size_t size);
+		noahh::Result<void*> peekArea();
 
-		virtual geode::Result<> writeMemory(void* destination, void const* source, size_t size);
+		virtual noahh::Result<> writeMemory(void* destination, void const* source, size_t size);
 
-		virtual geode::Result<csh> openCapstone() = 0;
+		virtual noahh::Result<csh> openCapstone() = 0;
 		void closeCapstone();
 		csh getCapstone();
 
-		virtual geode::Result<> allocatePage() = 0;
-		virtual geode::Result<uint32_t> getProtection(void* address) = 0;
-		virtual geode::Result<> protectMemory(void* address, size_t size, uint32_t protection) = 0;
-		virtual geode::Result<> rawWriteMemory(void* destination, void const* source, size_t size) = 0;
+		virtual noahh::Result<> allocatePage() = 0;
+		virtual noahh::Result<uint32_t> getProtection(void* address) = 0;
+		virtual noahh::Result<> protectMemory(void* address, size_t size, uint32_t protection) = 0;
+		virtual noahh::Result<> rawWriteMemory(void* destination, void const* source, size_t size) = 0;
 		virtual uint32_t getWritableProtection() = 0;
 
 		virtual std::unique_ptr<BaseGenerator> getGenerator() = 0;
@@ -70,3 +70,4 @@ namespace tulip::hook {
 		virtual std::shared_ptr<CallingConvention> createConvention(TulipConvention convention) noexcept = 0;
 	};
 };
+

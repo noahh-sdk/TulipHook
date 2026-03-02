@@ -11,7 +11,7 @@ namespace tulip::hook {
 	public:
 		using DarwinTarget::DarwinTarget;
 
-		geode::Result<csh> openCapstone() override;
+		noahh::Result<csh> openCapstone() override;
 
 		std::unique_ptr<BaseGenerator> getGenerator() override;
 
@@ -20,3 +20,4 @@ namespace tulip::hook {
 }
 
 #endif
+

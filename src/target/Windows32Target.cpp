@@ -23,7 +23,7 @@ Target& Target::get() {
 #include "../Handler.hpp"
 #include "../Wrapper.hpp"
 
-PVOID __declspec(dllexport) GeodeFunctionTableAccess64(HANDLE hProcess, DWORD64 AddrBase) {
+PVOID __declspec(dllexport) NoahhFunctionTableAccess64(HANDLE hProcess, DWORD64 AddrBase) {
 	auto const pc = reinterpret_cast<void*>(AddrBase);
 	auto const function = Target::get().getRegisteredFunction(pc);
 	if (function) {
@@ -39,58 +39,58 @@ PVOID __declspec(dllexport) GeodeFunctionTableAccess64(HANDLE hProcess, DWORD64 
 	return nullptr;
 }
 
-geode::Result<> Windows32Target::allocatePage() {
+noahh::Result<> Windows32Target::allocatePage() {
 	m_allocatedPage = VirtualAlloc(nullptr, 0x10000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READ);
 
 	if (!m_allocatedPage) {
-		return geode::Err("Unable to allocate memory: " + std::to_string(GetLastError()));
+		return noahh::Err("Unable to allocate memory: " + std::to_string(GetLastError()));
 	}
 
 	m_currentOffset = 0;
 	m_remainingOffset = 0x10000;
 
-	return geode::Ok();
+	return noahh::Ok();
 }
 
-geode::Result<uint32_t> Windows32Target::getProtection(void* address) {
+noahh::Result<uint32_t> Windows32Target::getProtection(void* address) {
 	MEMORY_BASIC_INFORMATION information;
 
 	if (!VirtualQuery(address, &information, sizeof(MEMORY_BASIC_INFORMATION))) {
-		return geode::Err("Unable to query memory protection information");
+		return noahh::Err("Unable to query memory protection information");
 	}
 
-	return geode::Ok(information.Protect);
+	return noahh::Ok(information.Protect);
 }
 
-geode::Result<> Windows32Target::protectMemory(void* address, size_t size, uint32_t protection) {
+noahh::Result<> Windows32Target::protectMemory(void* address, size_t size, uint32_t protection) {
 	DWORD oldProtection;
 
 	if (!VirtualProtect(address, size, protection, &oldProtection)) {
-		return geode::Err("Unable to apply memory protection");
+		return noahh::Err("Unable to apply memory protection");
 	}
 
-	return geode::Ok();
+	return noahh::Ok();
 }
 
-geode::Result<> Windows32Target::rawWriteMemory(void* destination, void const* source, size_t size) {
+noahh::Result<> Windows32Target::rawWriteMemory(void* destination, void const* source, size_t size) {
 	std::memcpy(destination, source, size);
 
-	return geode::Ok();
+	return noahh::Ok();
 }
 
 uint32_t Windows32Target::getWritableProtection() {
 	return PAGE_READWRITE;
 }
 
-geode::Result<csh> Windows32Target::openCapstone() {
+noahh::Result<csh> Windows32Target::openCapstone() {
 	cs_err status;
 
 	status = cs_open(CS_ARCH_X86, CS_MODE_32, &m_capstone);
 	if (status != CS_ERR_OK) {
-		return geode::Err("Couldn't open capstone");
+		return noahh::Err("Couldn't open capstone");
 	}
 
-	return geode::Ok(m_capstone);
+	return noahh::Ok(m_capstone);
 }
 
 std::unique_ptr<BaseGenerator> Windows32Target::getGenerator() {

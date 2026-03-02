@@ -13,15 +13,15 @@ Target& Target::get() {
 	return ret;
 }
 
-geode::Result<csh> MacosM1Target::openCapstone() {
+noahh::Result<csh> MacosM1Target::openCapstone() {
 	// cs_err status;
 
 	// status = cs_open(CS_ARCH_X86, CS_MODE_64, &m_capstone);
 	// if (status != CS_ERR_OK) {
-		return geode::Err("Couldn't open capstone");
+		return noahh::Err("Couldn't open capstone");
 	// }
 
-	// return geode::Ok(m_capstone);
+	// return noahh::Ok(m_capstone);
 }
 
 std::unique_ptr<BaseGenerator> MacosM1Target::getGenerator() {

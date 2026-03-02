@@ -31,67 +31,67 @@ Target& Target::get() {
 	return ret;
 }
 
-geode::Result<> iOSTarget::allocatePage() {
+noahh::Result<> iOSTarget::allocatePage() {
 	kern_return_t status;
 	vm_address_t ret;
 
 	status = vm_allocate(mach_task_self(), &ret, static_cast<vm_size_t>(0x10000), VM_FLAGS_ANYWHERE);
 	if (status != KERN_SUCCESS) {
-		return geode::Err("Couldn't allocate page");
+		return noahh::Err("Couldn't allocate page");
 	}
 	m_allocatedPage = reinterpret_cast<void*>(ret);
 	m_currentOffset = 0;
 	m_remainingOffset = 0x10000;
 	this->internalProtectMemory(m_allocatedPage, 0x10000, VM_PROT_READ | VM_PROT_EXECUTE, status);
 	if (status != KERN_SUCCESS) {
-		return geode::Err("Couldn't protect memory as RX");
+		return noahh::Err("Couldn't protect memory as RX");
 	}
 	if (m_useTxmJIT) {
 		BreakMarkJITMapping(ret, 0x10000);
 	}
-	return geode::Ok();
+	return noahh::Ok();
 }
-geode::Result<> iOSTarget::protectMemory(void* address, size_t size, uint32_t protection) {
+noahh::Result<> iOSTarget::protectMemory(void* address, size_t size, uint32_t protection) {
 	if (m_useTxmJIT) {
-		GEODE_UNWRAP_INTO(auto currentProtection, this->getProtection(address));
+		NOAHH_UNWRAP_INTO(auto currentProtection, this->getProtection(address));
 		// You cant protect whats already executable
 		if ((currentProtection & VM_PROT_EXECUTE) && (protection & VM_PROT_WRITE)) {
-			return geode::Ok();
+			return noahh::Ok();
 		}
 	}
 	kern_return_t status;
 
 	this->internalProtectMemory(address, size, protection, status);
 	if (status != KERN_SUCCESS) {
-		return geode::Err("Couldn't protect memory: " + std::to_string(status));
+		return noahh::Err("Couldn't protect memory: " + std::to_string(status));
 	}
-	return geode::Ok();
+	return noahh::Ok();
 }
-geode::Result<> iOSTarget::rawWriteMemory(void* destination, void const* source, size_t size) {
+noahh::Result<> iOSTarget::rawWriteMemory(void* destination, void const* source, size_t size) {
 	kern_return_t status;
 	if (m_useTxmJIT) {
-		GEODE_UNWRAP_INTO(auto currentProtection, this->getProtection(destination));
+		NOAHH_UNWRAP_INTO(auto currentProtection, this->getProtection(destination));
 		if ((currentProtection & VM_PROT_EXECUTE)) {
 			BreakJITWrite(reinterpret_cast<uint64_t>(destination), reinterpret_cast<uint64_t>(source), size);
-			return geode::Ok();
+			return noahh::Ok();
 		}
 	}
 	this->internalWriteMemory(destination, source, size, status);
 	if (status != KERN_SUCCESS) {
-		return geode::Err("Couldn't write memory: " + std::to_string(status));
+		return noahh::Err("Couldn't write memory: " + std::to_string(status));
 	}
-	return geode::Ok();
+	return noahh::Ok();
 }
 
-geode::Result<csh> iOSTarget::openCapstone() {
+noahh::Result<csh> iOSTarget::openCapstone() {
 	// cs_err status;
 
 	// status = cs_open(CS_ARCH_X86, CS_MODE_64, &m_capstone);
 	// if (status != CS_ERR_OK) {
-		return geode::Err("Couldn't open capstone");
+		return noahh::Err("Couldn't open capstone");
 	// }
 
-	// return geode::Ok(m_capstone);
+	// return noahh::Ok(m_capstone);
 }
 
 std::unique_ptr<BaseGenerator> iOSTarget::getGenerator() {
@@ -107,3 +107,4 @@ std::shared_ptr<CallingConvention> iOSTarget::createConvention(TulipConvention c
 }
 
 #endif
+

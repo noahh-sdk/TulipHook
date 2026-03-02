@@ -1,7 +1,7 @@
 #pragma once
 
 #include <HandlerData.hpp>
-#include <Geode/Result.hpp>
+#include <Noahh/Result.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -19,11 +19,12 @@ namespace tulip::hook {
 
 		static Pool& get();
 
-		geode::Result<HandlerHandle> createHandler(void* address, HandlerMetadata const& metadata);
-		geode::Result<> removeHandler(HandlerHandle const& handler);
+		noahh::Result<HandlerHandle> createHandler(void* address, HandlerMetadata const& metadata);
+		noahh::Result<> removeHandler(HandlerHandle const& handler);
 
 		Handler& getHandler(HandlerHandle const& handler);
 
-		geode::Result<> disableRuntimeIntervening(void* commonHandlerSpace);
+		noahh::Result<> disableRuntimeIntervening(void* commonHandlerSpace);
 	};
 }
+
