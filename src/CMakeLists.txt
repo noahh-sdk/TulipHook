@@ -106,7 +106,7 @@ if (TULIP_HOOK_LINK_CAPSTONE)
 	set(CAPSTONE_X86_REDUCE Off)
 	set(CAPSTONE_X86_ATT_DISABLE On)
 
-	CPMAddPackage("gh:noahh-sdk/capstone#d2a14e5")
+	CPMAddPackage("gh:noahh-sdk/capstone#5f4c102")
 	target_link_libraries(${PROJECT_NAME} PRIVATE capstone)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${capstone_SOURCE_DIR}/include)
 endif()
