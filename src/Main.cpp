@@ -9,11 +9,11 @@
 
 using namespace tulip::hook;
 
-noahh::Result<HandlerHandle> tulip::hook::createHandler(void* address, HandlerMetadata const& metadata) noexcept {
+geode::Result<HandlerHandle> tulip::hook::createHandler(void* address, HandlerMetadata const& metadata) noexcept {
 	return Pool::get().createHandler(address, metadata);
 }
 
-noahh::Result<> tulip::hook::removeHandler(HandlerHandle const& handler) noexcept {
+geode::Result<> tulip::hook::removeHandler(HandlerHandle const& handler) noexcept {
 	return Pool::get().removeHandler(handler);
 }
 
@@ -31,19 +31,19 @@ void tulip::hook::updateHookMetadata(
 	return Pool::get().getHandler(handler).updateHookMetadata(hook, metadata);
 }
 
-noahh::Result<> tulip::hook::writeMemory(void* destination, void const* source, size_t size) noexcept {
+geode::Result<> tulip::hook::writeMemory(void* destination, void const* source, size_t size) noexcept {
 	return Target::get().writeMemory(destination, source, size);
 }
 
-noahh::Result<void*> tulip::hook::followJumps(void* address) noexcept {
+geode::Result<void*> tulip::hook::followJumps(void* address) noexcept {
 	return Misc::followJumps(address);
 }
 
-noahh::Result<void*> tulip::hook::createWrapper(void* address, WrapperMetadata const& metadata) noexcept {
+geode::Result<void*> tulip::hook::createWrapper(void* address, WrapperMetadata const& metadata) noexcept {
 	return Wrapper::get().createWrapper(address, metadata);
 }
 
-noahh::Result<void*> tulip::hook::createReverseWrapper(void* address, WrapperMetadata const& metadata) noexcept {
+geode::Result<void*> tulip::hook::createReverseWrapper(void* address, WrapperMetadata const& metadata) noexcept {
 	return Wrapper::get().createReverseWrapper(address, metadata);
 }
 
@@ -51,13 +51,13 @@ std::shared_ptr<CallingConvention> tulip::hook::createConvention(TulipConvention
 	return Target::get().createConvention(convention);
 }
 
-noahh::Result<> tulip::hook::disableRuntimeIntervening(void* commonHandlerSpace) noexcept {
+geode::Result<> tulip::hook::disableRuntimeIntervening(void* commonHandlerSpace) noexcept {
 	return Pool::get().disableRuntimeIntervening(commonHandlerSpace);
 }
 
 RelocaledBytesReturn tulip::hook::getRelocatedBytes(int64_t original, int64_t relocated, std::vector<uint8_t> const& originalBuffer) {
 	RelocaledBytesReturn result;
-	if (NOAHH_UNWRAP_EITHER(res, err, Target::get().getGenerator()->relocatedBytes(original, relocated, originalBuffer, originalBuffer.size()))) {
+	if (GEODE_UNWRAP_EITHER(res, err, Target::get().getGenerator()->relocatedBytes(original, relocated, originalBuffer, originalBuffer.size()))) {
 		result.bytes = std::move(res.bytes);
 		result.offset = res.offset;
 	}

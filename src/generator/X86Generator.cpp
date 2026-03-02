@@ -130,12 +130,12 @@ BaseGenerator::WrapperReturn X86Generator::wrapperBytes(int64_t original, int64_
 	};
 }
 
-noahh::Result<BaseGenerator::RelocateReturn> X86Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
+geode::Result<BaseGenerator::RelocateReturn> X86Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
 	X86Assembler a(relocated);
 	RegMem32 m;
 	using enum X86Register;
 
-	NOAHH_UNWRAP_INTO(auto cs, Target::get().openCapstone());
+	GEODE_UNWRAP_INTO(auto cs, Target::get().openCapstone());
 
 	cs_option(cs, CS_OPT_DETAIL, CS_OPT_ON);
 
@@ -169,7 +169,7 @@ noahh::Result<BaseGenerator::RelocateReturn> X86Generator::relocatedBytes(int64_
 			m_shortBranchRelocations.erase(it);
 		}
 
-		NOAHH_UNWRAP(this->relocateInstruction(insn, buffer.data() + bufferOffset, trampolineAddress, originalAddress, relocated, targetSize, original));
+		GEODE_UNWRAP(this->relocateInstruction(insn, buffer.data() + bufferOffset, trampolineAddress, originalAddress, relocated, targetSize, original));
 	}
 
 	cs_free(insn, 1);
@@ -185,7 +185,7 @@ noahh::Result<BaseGenerator::RelocateReturn> X86Generator::relocatedBytes(int64_
 
 	a.align16();
 
-	return noahh::Ok(RelocateReturn{
+	return geode::Ok(RelocateReturn{
 		.bytes = std::move(a.m_buffer),
 		.offset = (size_t)originalOffset,
 	});
@@ -203,24 +203,24 @@ noahh::Result<BaseGenerator::RelocateReturn> X86Generator::relocatedBytes(int64_
 // 	return std::move(a.m_buffer);
 // }
 
-// noahh::Result<void*> X86WrapperGenerator::generateReverseWrapper() {
+// geode::Result<void*> X86WrapperGenerator::generateReverseWrapper() {
 // 	if (!m_metadata.m_convention->needsWrapper(m_metadata.m_abstract)) {
-// 		return noahh::Ok(m_address);
+// 		return geode::Ok(m_address);
 // 	}
 
 // 	// this is silly, butt
 // 	auto codeSize = this->reverseWrapperBytes(0).size();
 // 	auto areaSize = (codeSize + (0x20 - codeSize) % 0x20);
 
-// 	NOAHH_UNWRAP_INTO(auto area, Target::get().allocateArea(areaSize));
+// 	GEODE_UNWRAP_INTO(auto area, Target::get().allocateArea(areaSize));
 // 	auto code = this->reverseWrapperBytes(reinterpret_cast<uint64_t>(area));
 
-// 	NOAHH_UNWRAP(Target::get().writeMemory(area, code.data(), codeSize));
+// 	GEODE_UNWRAP(Target::get().writeMemory(area, code.data(), codeSize));
 
-// 	return noahh::Ok(area);
+// 	return geode::Ok(area);
 // }
 
-noahh::Result<> X86Generator::relocateInstruction(cs_insn* insn, uint8_t* buffer, uint64_t& trampolineAddress, uint64_t& originalAddress, int64_t relocated, size_t originalTarget, int64_t original) {
+geode::Result<> X86Generator::relocateInstruction(cs_insn* insn, uint8_t* buffer, uint64_t& trampolineAddress, uint64_t& originalAddress, int64_t relocated, size_t originalTarget, int64_t original) {
 	auto const id = insn->id;
 	auto const detail = insn->detail;
 	auto const address = insn->address;
@@ -266,10 +266,10 @@ noahh::Result<> X86Generator::relocateInstruction(cs_insn* insn, uint8_t* buffer
 
 	trampolineAddress += size;
 	originalAddress += size;
-	return noahh::Ok();
+	return geode::Ok();
 }
 
-noahh::Result<> X86Generator::relocateRIPInstruction(cs_insn* insn, uint8_t* buffer, uint64_t& trampolineAddress, uint64_t& originalAddress, int64_t disp) {
+geode::Result<> X86Generator::relocateRIPInstruction(cs_insn* insn, uint8_t* buffer, uint64_t& trampolineAddress, uint64_t& originalAddress, int64_t disp) {
 	auto const id = insn->id;
 	auto const detail = insn->detail;
 	auto const address = insn->address;
@@ -277,7 +277,7 @@ noahh::Result<> X86Generator::relocateRIPInstruction(cs_insn* insn, uint8_t* buf
 	auto difference = static_cast<int64_t>(trampolineAddress) - static_cast<int64_t>(originalAddress);
 
 	if (difference > 0x7fffffffll || difference < -0x80000000ll) {
-		return noahh::Err("rip displacement too large");
+		return geode::Err("rip displacement too large");
 	}
 
 	// std::cout << "short disp: " << disp << std::endl;
@@ -290,10 +290,10 @@ noahh::Result<> X86Generator::relocateRIPInstruction(cs_insn* insn, uint8_t* buf
 
 	trampolineAddress += size;
 	originalAddress += size;
-	return noahh::Ok();
+	return geode::Ok();
 }
 
-noahh::Result<> X86Generator::relocateBranchInstruction(cs_insn* insn, uint8_t* buffer, uint64_t& trampolineAddress, uint64_t& originalAddress, int64_t targetAddress, int64_t relocated, size_t originalTarget, int64_t original) {
+geode::Result<> X86Generator::relocateBranchInstruction(cs_insn* insn, uint8_t* buffer, uint64_t& trampolineAddress, uint64_t& originalAddress, int64_t targetAddress, int64_t relocated, size_t originalTarget, int64_t original) {
 	auto const id = insn->id;
 	auto const detail = insn->detail;
 	auto const address = insn->address;
@@ -301,7 +301,7 @@ noahh::Result<> X86Generator::relocateBranchInstruction(cs_insn* insn, uint8_t* 
 	auto difference = static_cast<int64_t>(trampolineAddress) - static_cast<int64_t>(originalAddress);
 
 	if (difference > 0x7fffffffll || difference < -0x80000000ll) {
-		return noahh::Err("branch displacement too large");
+		return geode::Err("branch displacement too large");
 	}
 
 	if (id == X86_INS_JMP) {
@@ -340,5 +340,5 @@ noahh::Result<> X86Generator::relocateBranchInstruction(cs_insn* insn, uint8_t* 
 	}
 
 	originalAddress += size;
-	return noahh::Ok();
+	return geode::Ok();
 }

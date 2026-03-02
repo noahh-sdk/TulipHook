@@ -52,7 +52,7 @@ addr_t relo_cur_src_vmaddr(relo_ctx_t *ctx) {
   }
 }
 
-// Noahh bugfix
+// Geode bugfix
 // the offsets are always 4 padded for ldr
 addr_t relo_cur_src_vmaddr_ldr(relo_ctx_t *ctx) {
   int relocated_len = ctx->buffer_cursor - ctx->buffer;
@@ -902,4 +902,3 @@ void GenRelocateCodeAndBranch(void *buffer, void* relocated_mem, CodeMemBlock *o
 }
 
 #endif
-

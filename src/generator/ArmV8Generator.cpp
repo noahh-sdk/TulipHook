@@ -152,7 +152,7 @@ std::vector<uint8_t> ArmV8Generator::intervenerBytes(int64_t original, int64_t h
 
     return std::move(a.m_buffer);
 }
-noahh::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
+geode::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
 	auto address = original;
 	auto trampoline = relocated;
 
@@ -300,24 +300,40 @@ noahh::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int6
 				}
 				break;
 			}
-			case ArmV8InstructionType::CB_: {
+			case ArmV8InstructionType::CBZ: {
 				if (canDeltaRange(newOffset, 33)) {
 					a.adrp(X16, alignedCallback - alignedAddr);
 					a.add(X16, X16, callback & 0xFFF);
-					a.write32(
-						(ins->m_rawInstruction & 0xFFFFE01F) | // Preserve the real bits
-						(2 << 5)
-					);
+					a.cbz(ins->m_src1, 8);
 					a.b("jump-" + idxLabel);
 					a.br(X16);
 
 					a.label("jump-" + idxLabel);
 				} else {
 					a.ldr(X16, "literal-" + idxLabel);
-					a.write32(
-						(ins->m_rawInstruction & 0xFFFFE01F) | // Preserve the real bits
-						(2 << 5)
-					);
+					a.cbz(ins->m_src1, 8);
+					a.b("jump-" + idxLabel);
+					a.br(X16);
+
+					a.label("literal-" + idxLabel);
+					a.write64(ins->m_literal);
+
+					a.label("jump-" + idxLabel);
+				}
+				break;
+			}
+			case ArmV8InstructionType::CBNZ: {
+				if (canDeltaRange(newOffset, 33)) {
+					a.adrp(X16, alignedCallback - alignedAddr);
+					a.add(X16, X16, callback & 0xFFF);
+					a.cbnz(ins->m_src1, 8);
+					a.b("jump-" + idxLabel);
+					a.br(X16);
+
+					a.label("jump-" + idxLabel);
+				} else {
+					a.ldr(X16, "literal-" + idxLabel);
+					a.cbnz(ins->m_src1, 8);
 					a.b("jump-" + idxLabel);
 					a.br(X16);
 
@@ -402,7 +418,7 @@ noahh::Result<BaseGenerator::RelocateReturn> ArmV8Generator::relocatedBytes(int6
 
 	a.updateLabels();
 
-	return noahh::Ok(RelocateReturn{std::move(a.m_buffer), targetSize});
+	return geode::Ok(RelocateReturn{std::move(a.m_buffer), targetSize});
 }
 
 std::vector<uint8_t> ArmV8Generator::commonHandlerBytes(int64_t handler, ptrdiff_t spaceOffset) {
@@ -521,4 +537,3 @@ std::vector<uint8_t> ArmV8Generator::commonIntervenerBytes(int64_t original, int
 
 	return std::move(a.m_buffer);
 }
-

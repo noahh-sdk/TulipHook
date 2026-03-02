@@ -13,15 +13,15 @@ Target& Target::get() {
 	return ret;
 }
 
-noahh::Result<csh> MacosIntelTarget::openCapstone() {
+geode::Result<csh> MacosIntelTarget::openCapstone() {
 	cs_err status;
 
 	status = cs_open(CS_ARCH_X86, CS_MODE_64, &m_capstone);
 	if (status != CS_ERR_OK) {
-		return noahh::Err("Couldn't open capstone");
+		return geode::Err("Couldn't open capstone");
 	}
 
-	return noahh::Ok(m_capstone);
+	return geode::Ok(m_capstone);
 }
 
 std::unique_ptr<BaseGenerator> MacosIntelTarget::getGenerator() {

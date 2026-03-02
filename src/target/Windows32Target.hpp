@@ -13,12 +13,12 @@ namespace tulip::hook {
 
 		void* getRuntimeInfo(void* pointer);
 
-		noahh::Result<csh> openCapstone() override;
+		geode::Result<csh> openCapstone() override;
 
-		noahh::Result<> allocatePage() override;
-		noahh::Result<uint32_t> getProtection(void* address) override;
-		noahh::Result<> protectMemory(void* address, size_t size, uint32_t protection) override;
-		noahh::Result<> rawWriteMemory(void* destination, void const* source, size_t size) override;
+		geode::Result<> allocatePage() override;
+		geode::Result<uint32_t> getProtection(void* address) override;
+		geode::Result<> protectMemory(void* address, size_t size, uint32_t protection) override;
+		geode::Result<> rawWriteMemory(void* destination, void const* source, size_t size) override;
 		uint32_t getWritableProtection() override;
 
 		std::unique_ptr<BaseGenerator> getGenerator() override;
@@ -28,4 +28,3 @@ namespace tulip::hook {
 }
 
 #endif
-

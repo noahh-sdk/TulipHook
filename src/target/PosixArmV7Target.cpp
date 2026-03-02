@@ -15,16 +15,16 @@ Target& Target::get() {
 	return ret;
 }
 
-noahh::Result<csh> PosixArmV7Target::openCapstone() {
+geode::Result<csh> PosixArmV7Target::openCapstone() {
 	//cs_err status;
 
 	//status = cs_open(CS_ARCH_ARM, CS_MODE_32, &m_capstone);
 
 	//if (status != CS_ERR_OK) {
-		return noahh::Err("Couldn't open capstone");
+		return geode::Err("Couldn't open capstone");
 	//}
 
-	//return noahh::Ok(m_capstone);
+	//return geode::Ok(m_capstone);
 }
 
 std::unique_ptr<BaseGenerator> PosixArmV7Target::getGenerator() {
@@ -44,4 +44,3 @@ std::shared_ptr<CallingConvention> PosixArmV7Target::createConvention(TulipConve
 }
 
 #endif
-

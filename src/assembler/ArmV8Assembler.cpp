@@ -181,6 +181,7 @@ void ArmV8Assembler::ldr(ArmV8Register dst, int32_t literal) {
     this->write32(0x58000000 | literalShifted | val(dst) | simdShifted);
 }
 
+// for the next person coming here please do not replace 3 with b's cause bitShifted already does that
 void ArmV8Assembler::tbz(ArmV8Register reg, int32_t bit, int32_t imm) {
     const auto literalShifted = ((imm >> 2) & 0x3FFF) << 5;
     const auto bitShifted = (bit & 0x1F) << 19 | ((bit >> 5) & 1) << 31;
@@ -190,6 +191,15 @@ void ArmV8Assembler::tbnz(ArmV8Register reg, int32_t bit, int32_t imm) {
     const auto literalShifted = ((imm >> 2) & 0x3FFF) << 5;
     const auto bitShifted = (bit & 0x1F) << 19 | ((bit >> 5) & 1) << 31;
     this->write32(0x37000000 | literalShifted | bitShifted | val(reg));
+}
+
+void ArmV8Assembler::cbz(ArmV8Register reg, int32_t imm) {
+    const auto literalShifted = ((imm >> 2) & 0x3FFFF) << 5;
+    this->write32(0xb4000000 | literalShifted | val(reg));
+}
+void ArmV8Assembler::cbnz(ArmV8Register reg, int32_t imm) {
+    const auto literalShifted = ((imm >> 2) & 0x3FFFF) << 5;
+    this->write32(0xb5000000 | literalShifted | val(reg));
 }
 
 void ArmV8Assembler::nop() { this->write32(0xD503201F); }

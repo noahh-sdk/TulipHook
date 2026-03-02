@@ -106,12 +106,12 @@ if (TULIP_HOOK_LINK_CAPSTONE)
 	set(CAPSTONE_X86_REDUCE Off)
 	set(CAPSTONE_X86_ATT_DISABLE On)
 
-	CPMAddPackage("gh:noahh-sdk/capstone#5f4c102")
+	CPMAddPackage("gh:geode-sdk/capstone#d2a14e5")
 	target_link_libraries(${PROJECT_NAME} PRIVATE capstone)
 	target_include_directories(${PROJECT_NAME} PRIVATE ${capstone_SOURCE_DIR}/include)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PUBLIC NoahhResult)
+target_link_libraries(${PROJECT_NAME} PUBLIC GeodeResult)
 target_compile_definitions(${PROJECT_NAME} PRIVATE -DTULIP_HOOK_EXPORTING=1)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -122,4 +122,3 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} INTERFACE
 	${TulipHookRoot_SOURCE_DIR}/include
 )
-

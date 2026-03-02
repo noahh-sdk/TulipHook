@@ -468,7 +468,7 @@ public:
 	}
 
 	void generateOriginalCleanup() {
-		// in the default(noahh) function, the return for floats is in st0
+		// in the default(geode) function, the return for floats is in st0
 		if (std::holds_alternative<Register>(m_returnValueLocation) && std::get<Register>(m_returnValueLocation) == Register::XMM0) {
 			// move the xmm into st0
 			auto size = m_returnType.m_size;
@@ -708,4 +708,3 @@ std::shared_ptr<StdcallConvention> StdcallConvention::create() {
 }
 
 StdcallConvention::~StdcallConvention() {}
-

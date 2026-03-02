@@ -28,8 +28,8 @@ if(PROJECT_IS_TOP_LEVEL AND NOT TULIP_DONT_BUILD_TESTS)
 	add_subdirectory(test)
 endif()
 
-if (NOT TARGET NoahhResult)
-	CPMAddPackage("gh:noahh-sdk/result@1.3.0")
+if (NOT TARGET GeodeResult)
+	CPMAddPackage("gh:geode-sdk/result@1.3.0")
 endif()
 
 add_library(TulipHookInclude INTERFACE)
@@ -37,5 +37,4 @@ target_include_directories(TulipHookInclude INTERFACE
 	${TulipHookRoot_SOURCE_DIR}/include
 )
 
-target_link_libraries(TulipHookInclude INTERFACE NoahhResult)
-
+target_link_libraries(TulipHookInclude INTERFACE GeodeResult)

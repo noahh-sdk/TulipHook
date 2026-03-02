@@ -69,12 +69,14 @@ BaseGenerator::HandlerReturn ArmV7Generator::handlerBytes(int64_t original, int6
 
 	// preserve the return values
 	a.str(R0, SP, 0x00);
+	a.str(R1, SP, 0x04);
 
 	// call the post handler, decrementing
 	a.ldr(R0, "handlerPost");
 	a.blx(R0);
 
 	// recover the return values
+	a.ldr(R1, SP, 0x04);
 	a.ldr(R0, SP, 0x00);
 
 	// done!
@@ -125,7 +127,7 @@ std::vector<uint8_t> ArmV7Generator::intervenerBytes(int64_t original, int64_t h
 		return std::move(a.m_buffer);
 	}
 }
-noahh::Result<BaseGenerator::RelocateReturn> ArmV7Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
+geode::Result<BaseGenerator::RelocateReturn> ArmV7Generator::relocatedBytes(int64_t original, int64_t relocated, std::span<uint8_t const> originalBuffer, size_t targetSize) {
 	auto originMem = new CodeMemBlock(Target::get().getRealPtr((void*)original), targetSize);
 	auto relocatedMem = new CodeMemBlock();
 	// idk about arm thumb stuff help me
@@ -140,14 +142,13 @@ noahh::Result<BaseGenerator::RelocateReturn> ArmV7Generator::relocatedBytes(int6
 	});
 
 	if (!error.empty()) {
-		return noahh::Err(std::move(error));
+		return geode::Err(std::move(error));
 	}
 
 	if (relocatedMem->size == 0) {
-		return noahh::Err("Failed to relocate original function");
+		return geode::Err("Failed to relocate original function");
 	}
 	std::vector<uint8_t> relocatedBufferVec(relocatedMem->size);
 	std::memcpy(relocatedBufferVec.data(), relocatedBuffer.data(), relocatedMem->size);
-	return noahh::Ok(RelocateReturn{std::move(relocatedBufferVec), originMem->size});
+	return geode::Ok(RelocateReturn{std::move(relocatedBufferVec), originMem->size});
 }
-

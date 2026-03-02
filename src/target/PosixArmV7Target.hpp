@@ -11,7 +11,7 @@ namespace tulip::hook {
 	public:
 		using PosixTarget::PosixTarget;
 
-		noahh::Result<csh> openCapstone() override;
+		geode::Result<csh> openCapstone() override;
 
 		std::unique_ptr<BaseGenerator> getGenerator() override;
 
@@ -23,4 +23,3 @@ namespace tulip::hook {
 }
 
 #endif
-

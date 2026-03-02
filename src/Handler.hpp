@@ -4,7 +4,7 @@
 #include <WrapperData.hpp>
 #include <HookData.hpp>
 #include <Platform.hpp>
-#include <Noahh/Result.hpp>
+#include <Geode/Result.hpp>
 #include <array>
 #include <memory>
 #include <unordered_map>
@@ -42,7 +42,7 @@ namespace tulip::hook {
 		static std::unique_ptr<Handler> create(void* address, HandlerMetadata const& metadata);
 		~Handler();
 
-		noahh::Result<> init();
+		geode::Result<> init();
 
 		HookHandle createHook(void* address, HookMetadata m_metadata);
 		void removeHook(HookHandle const& hook);
@@ -62,7 +62,7 @@ namespace tulip::hook {
 		static void* popData();
 		static void pushData(void* data);
 
-		noahh::Result<> interveneFunction();
-		noahh::Result<> restoreFunction();
+		geode::Result<> interveneFunction();
+		geode::Result<> restoreFunction();
 	};
 }
